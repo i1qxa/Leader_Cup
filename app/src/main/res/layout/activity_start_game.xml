@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.StartGameActivity"
+    >
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/base_background"
+        />
+
+    <TextView
+        android:id="@+id/tvMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textSize="20sp"
+        android:text="@string/menu"
+        android:textColor="@color/white"
+        android:fontFamily="@font/geist_regular"
+        android:layout_marginTop="30dp"
+        android:textStyle="bold"
+        android:padding="5dp"
+        />
+
+    <ImageView
+        android:id="@+id/ivBallGold"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvMenu"
+        app:layout_constraintBottom_toBottomOf="@id/tvMenu"
+        android:src="@drawable/ball_gold"
+        android:layout_marginEnd="30dp"
+        />
+
+    <TextView
+        android:id="@+id/tvBalanceValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@id/ivBallGold"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textSize="20sp"
+        android:text="100"
+        android:textColor="@color/white"
+        android:fontFamily="@font/geist_regular"
+        android:layout_marginTop="30dp"
+        android:textStyle="bold"
+        android:padding="5dp"
+        android:layout_marginEnd="5dp"
+        />
+
+    <ImageView
+        android:id="@+id/ivMusicBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvMenu"
+        app:layout_constraintBottom_toBottomOf="@id/tvMenu"
+        android:src="@drawable/icon_music_off"
+        android:layout_marginStart="30dp"
+        />
+
+    <ImageView
+        android:id="@+id/ivInfoBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toEndOf="@id/ivMusicBtn"
+        app:layout_constraintTop_toTopOf="@id/tvMenu"
+        app:layout_constraintBottom_toBottomOf="@id/tvMenu"
+        android:src="@drawable/icon_info"
+        android:layout_marginStart="10dp"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vert20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.2"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vert33"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.33"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vert67"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.67"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vert80"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vert50"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5"
+        />
+
+    <ImageView
+        android:id="@+id/ivBallBig"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="@id/vert33"
+        app:layout_constraintEnd_toEndOf="@id/vert67"
+        app:layout_constraintTop_toTopOf="@id/ivCupBig"
+        app:layout_constraintBottom_toTopOf="@id/ivCupBig"
+        android:src="@drawable/ball_big"
+        />
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/ivBallBig"
+        app:layout_constraintBottom_toTopOf="@id/ivCupBig"
+        android:src="@drawable/ball_half"
+        android:scaleType="fitEnd"
+        />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivCupBig"
+        app:layout_constraintBottom_toBottomOf="@id/ivCupBig"
+        android:src="@drawable/ball_transperent"
+        android:scaleType="fitStart"
+        />
+
+    <ImageView
+        android:id="@+id/ivCupBig"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="10:12"
+        app:layout_constraintStart_toEndOf="@id/vert20"
+        app:layout_constraintEnd_toEndOf="@id/vert80"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:src="@drawable/cup_big"
+        />
+
+    <ImageView
+        android:id="@+id/backgroundBtnStart"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="@id/vert20"
+        app:layout_constraintEnd_toEndOf="@id/vert80"
+        app:layout_constraintTop_toTopOf="@id/tvStart"
+        app:layout_constraintBottom_toBottomOf="@id/tvStart"
+        android:src="@drawable/btn_background"
+        />
+
+    <TextView
+        android:id="@+id/tvStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@id/vert50"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="25sp"
+        android:text="@string/start"
+        android:textColor="@color/black"
+        android:fontFamily="@font/geist_regular"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="40dp"
+        android:paddingVertical="10dp"
+        />
+
+    <ImageView
+        android:id="@+id/ivArrowRight"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toEndOf="@id/vert50"
+        android:src="@drawable/arrow_right"
+        app:layout_constraintTop_toTopOf="@id/backgroundBtnStart"
+        app:layout_constraintBottom_toBottomOf="@id/backgroundBtnStart"
+        android:layout_marginStart="10dp"
+        android:paddingVertical="5dp"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
