@@ -2,4 +2,7 @@
     <string name="app_name">Leader Cup</string>
     <string name="menu">Menu</string>
     <string name="start">Start</string>
+    <string name="game">Game</string>
+    <string name="lose">You Lose</string>
+    <string name="win">You Win</string>
 </resources>
