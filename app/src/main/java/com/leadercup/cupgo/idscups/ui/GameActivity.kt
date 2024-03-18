@@ -1,8 +1,11 @@
 package com.leadercup.cupgo.idscups.ui
 
 import android.content.Context
+import android.media.AudioManager
+import android.media.SoundPool
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -12,7 +15,6 @@ import androidx.lifecycle.lifecycleScope
 import com.leadercup.cupgo.idscups.R
 import com.leadercup.cupgo.idscups.data.Coordinates
 import com.leadercup.cupgo.idscups.databinding.ActivityGameBinding
-import com.leadercup.cupgo.idscups.databinding.ActivityStartGameBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -21,26 +23,18 @@ class GameActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityGameBinding.inflate(layoutInflater) }
     private val prefs by lazy { getSharedPreferences("leader_prefs", Context.MODE_PRIVATE) }
-//    private val ballStartCoordinate by lazy { Coordinates(
-//        binding.ivBall.x,
-//        binding.ivBall.y
-//    ) }
+    private val isSoundOn by lazy { prefs.getBoolean("isSoundOn", false) }
     private var listOfStartCoordinates = mutableListOf<Coordinates>()
-    private lateinit var cupRotated:View
+    private lateinit var cupRotated: View
     private var balance = 100
     private val viewModel by lazy { ViewModelProvider(this)[GameViewModel::class.java] }
-    private val randomCupNumber by lazy { Random.nextInt(3) }
-    private val cupWithBall by lazy {
-        when (randomCupNumber) {
-            1 -> cup1
-            2 -> cup2
-            else -> cup3
-        }
-    }
+    private lateinit var cupWithBall: ImageView
     private val cup1 by lazy { binding.cup1 }
     private val cup2 by lazy { binding.cup2 }
     private val cup3 by lazy { binding.cup3 }
     private val ball by lazy { binding.ivBall }
+
+    private var soundPool: SoundPool? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,16 +45,27 @@ class GameActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-//        setupStartCoordinates()
         setupBtnPlayClickListener()
         observeGameState()
         setupBtnClickListeners()
         setupBalance()
+        soundPool = SoundPool(6, AudioManager.STREAM_MUSIC, 0)
+    }
+
+    private fun setupCupWithBall() {
+        val randomCupNumber = Random.nextInt(3)
+        cupWithBall =
+            when (randomCupNumber) {
+                1 -> cup1
+                2 -> cup2
+                else -> cup3
+            }
+
+
     }
 
 
-
-    private fun setupStartCoordinates(){
+    private fun setupStartCoordinates() {
         listOfStartCoordinates.add(
             Coordinates(ball.x, ball.y)
         )
@@ -75,27 +80,14 @@ class GameActivity : AppCompatActivity() {
         )
     }
 
-    private fun setupBalance(){
+    private fun setupBalance() {
         balance = prefs.getInt("balance", 100)
         binding.tvBalanceValue.text = balance.toString()
     }
 
-    private fun setupBtnClickListeners(){
+    private fun setupBtnClickListeners() {
         binding.btnReplay.setOnClickListener {
-//            cupRotated.animate().apply {
-//                duration = 2
-//                rotation(180F)
-//                start()
-//            }
-//            ball.animate().apply {
-//                duration = 2
-//                x(listOfStartCoordinates[0].x)
-//                y(listOfStartCoordinates[0].y)
-//                setVisible(true)
-//                start()
-//            }
-//            playGame()
-            animationToStart()
+            viewModel.setReady()
         }
         binding.btnBackToStart.setOnClickListener {
             finish()
@@ -105,67 +97,86 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun animationToStart(){
-        binding.btnReplay.setOnClickListener {
-            lifecycleScope.launch {
-                cupRotated.animate().apply {
-                    duration = 100
-                    rotation(180F)
-                }
-                ball.animate().apply {
-                    duration = 100
-                    x(listOfStartCoordinates[0].x)
-                    y(listOfStartCoordinates[0].y)
-                    setVisible(true)
-                }
-                cup1.animate().apply {
-                    duration = 100
-                    x(listOfStartCoordinates[1].x)
-                    y(listOfStartCoordinates[1].y)
-                }
-                cup2.animate().apply {
-                    duration = 100
-                    x(listOfStartCoordinates[2].x)
-                    y(listOfStartCoordinates[2].y)
-                }
-                cup3.animate().apply {
-                    duration = 100
-                    x(listOfStartCoordinates[3].x)
-                    y(listOfStartCoordinates[3].y)
+    private fun animationToStart() {
+        lifecycleScope.launch {
+            cupRotated.animate().apply {
+                duration = 100
+                rotation(0F)
+                withEndAction {
+                    moveToStartPositions()
                 }
             }
+
         }
     }
 
-    private fun observeGameState(){
-        viewModel.gameStateLD.observe(this){ gameState ->
+    private fun moveToStartPositions() {
+        ball.visibility = View.VISIBLE
+        ball.animate().apply {
+            duration = 100
+            x(listOfStartCoordinates[0].x)
+            y(listOfStartCoordinates[0].y)
+        }
+        cup1.animate().apply {
+            duration = 100
+            x(listOfStartCoordinates[1].x)
+            y(listOfStartCoordinates[1].y)
+        }
+        cup2.animate().apply {
+            duration = 100
+            x(listOfStartCoordinates[2].x)
+            y(listOfStartCoordinates[2].y)
+        }
+        cup3.animate().apply {
+            duration = 100
+            x(listOfStartCoordinates[3].x)
+            y(listOfStartCoordinates[3].y)
+        }
+    }
+
+    private fun observeGameState() {
+        viewModel.gameStateLD.observe(this) { gameState ->
             removeCupClickListeners()
-            when(gameState){
-                GameState.IN_GAME ->{
+            when (gameState) {
+                GameState.IN_GAME -> {
                     setInGameVisibility()
                 }
-                GameState.WIN ->{
+
+                GameState.WIN -> {
+                    playMoveSound(soundPool!!.load(baseContext, R.raw.win_sound, 1))
                     setFinishGameVisibility()
                     binding.tvGameResult.text = getString(R.string.win)
                     binding.tvCoinResult.text = "+50"
-                    balance+=40
+                    balance += 40
                     prefs.edit().putInt("balance", balance).apply()
                     setupBalance()
                 }
-                GameState.LOSE ->{
+
+                GameState.LOSE -> {
+                    playMoveSound(soundPool!!.load(baseContext, R.raw.lose_sound, 1))
                     setFinishGameVisibility()
                     binding.tvGameResult.text = getString(R.string.lose)
                     binding.tvCoinResult.text = "-10"
-                    balance-=10
-                    if (balance<=0) balance = 100
+                    balance -= 10
+                    if (balance <= 0) balance = 100
                     prefs.edit().putInt("balance", balance).apply()
                     setupBalance()
+                }
+
+                GameState.READY -> {
+                    binding.tvGameResult.visibility = View.GONE
+                    binding.tvCoinResult.visibility = View.GONE
+                    binding.ivBallGoldResult.visibility = View.GONE
+                    binding.btnBackToStart.visibility = View.GONE
+                    binding.btnReplay.visibility = View.GONE
+                    binding.btnPlay.visibility = View.VISIBLE
+                    animationToStart()
                 }
             }
         }
     }
 
-    private fun setInGameVisibility(){
+    private fun setInGameVisibility() {
         binding.tvGameResult.visibility = View.GONE
         binding.tvCoinResult.visibility = View.GONE
         binding.ivBallGoldResult.visibility = View.GONE
@@ -174,7 +185,7 @@ class GameActivity : AppCompatActivity() {
         binding.btnPlay.visibility = View.GONE
     }
 
-    private fun setFinishGameVisibility(){
+    private fun setFinishGameVisibility() {
         binding.tvGameResult.visibility = View.VISIBLE
         binding.tvCoinResult.visibility = View.VISIBLE
         binding.ivBallGoldResult.visibility = View.VISIBLE
@@ -182,7 +193,7 @@ class GameActivity : AppCompatActivity() {
         binding.btnReplay.visibility = View.VISIBLE
     }
 
-    private fun removeCupClickListeners(){
+    private fun removeCupClickListeners() {
         cup1.setOnClickListener(null)
         cup2.setOnClickListener(null)
         cup3.setOnClickListener(null)
@@ -195,8 +206,9 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun playGame() {
+        setupCupWithBall()
         viewModel.setInGame()
-        if (listOfStartCoordinates.isEmpty()){
+        if (listOfStartCoordinates.isEmpty()) {
             setupStartCoordinates()
         }
         binding.ivBall.animate().apply {
@@ -211,6 +223,16 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    private fun playMoveSound(sound: Int) {
+        if (isSoundOn) {
+            soundPool!!.setOnLoadCompleteListener { soundPool, sampleId, status ->
+                if (status == 0) {
+                    soundPool?.play(sound, 1F, 1F, 0, 0, 1F)
+                }
+            }
+        }
+    }
+
     private fun getCupCoordinates(): Coordinates {
         val xAdded = binding.ivBall.width / 2
         val x = cupWithBall.x + xAdded
@@ -219,7 +241,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun launchRotateAnimation() {
-        var amountRotation = (Random.nextInt(3) + 3) * 3
+        var amountRotation = (Random.nextInt(3) + 3)
         lifecycleScope.launch {
             while (amountRotation > 0) {
                 rotateCup()
@@ -230,7 +252,7 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupCupsClickListener(){
+    private fun setupCupsClickListener() {
         cup1.setOnClickListener {
             checkRes(it)
         }
@@ -242,18 +264,18 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkRes(cup:View){
+    private fun checkRes(cup: View) {
         cupRotated = cup
         cup.animate().apply {
             duration = 500
             rotation(180F)
             withEndAction {
-                if (cup == cupWithBall){
+                if (cup == cupWithBall) {
                     binding.ivBall.visibility = View.VISIBLE
-                    binding.ivBall.x = cup.x + cup.width/2 - binding.ivBall.width/2
-                    binding.ivBall.y = cup.y - binding.ivBall.height/2
+                    binding.ivBall.x = cup.x + cup.width / 2 - binding.ivBall.width / 2
+                    binding.ivBall.y = cup.y - binding.ivBall.height / 2
                     viewModel.setWin()
-                }else{
+                } else {
                     viewModel.setLose()
                 }
             }
@@ -263,6 +285,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun rotateCup() {
+        playMoveSound(soundPool!!.load(baseContext, R.raw.move_sound, 1))
         if (Random.nextBoolean()) {
             cup1.animate().apply {
                 duration = 500

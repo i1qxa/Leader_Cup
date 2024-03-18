@@ -19,8 +19,12 @@ class GameViewModel:ViewModel() {
         gameStateLD.value = GameState.LOSE
     }
 
+    fun setReady(){
+        gameStateLD.value = GameState.READY
+    }
+
 }
 
 enum class GameState{
-    IN_GAME, WIN, LOSE
+    IN_GAME, WIN, LOSE, READY
 }
