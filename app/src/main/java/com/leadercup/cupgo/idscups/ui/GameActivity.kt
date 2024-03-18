@@ -21,10 +21,11 @@ class GameActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityGameBinding.inflate(layoutInflater) }
     private val prefs by lazy { getSharedPreferences("leader_prefs", Context.MODE_PRIVATE) }
-    private val ballStartCoordinate by lazy { Coordinates(
-        binding.ivBall.x,
-        binding.ivBall.y
-    ) }
+//    private val ballStartCoordinate by lazy { Coordinates(
+//        binding.ivBall.x,
+//        binding.ivBall.y
+//    ) }
+    private var listOfStartCoordinates = mutableListOf<Coordinates>()
     private lateinit var cupRotated:View
     private var balance = 100
     private val viewModel by lazy { ViewModelProvider(this)[GameViewModel::class.java] }
@@ -39,6 +40,7 @@ class GameActivity : AppCompatActivity() {
     private val cup1 by lazy { binding.cup1 }
     private val cup2 by lazy { binding.cup2 }
     private val cup3 by lazy { binding.cup3 }
+    private val ball by lazy { binding.ivBall }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,10 +51,28 @@ class GameActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+//        setupStartCoordinates()
         setupBtnPlayClickListener()
         observeGameState()
         setupBtnClickListeners()
         setupBalance()
+    }
+
+
+
+    private fun setupStartCoordinates(){
+        listOfStartCoordinates.add(
+            Coordinates(ball.x, ball.y)
+        )
+        listOfStartCoordinates.add(
+            Coordinates(cup1.x, cup1.y)
+        )
+        listOfStartCoordinates.add(
+            Coordinates(cup2.x, cup2.y)
+        )
+        listOfStartCoordinates.add(
+            Coordinates(cup3.x, cup3.y)
+        )
     }
 
     private fun setupBalance(){
@@ -62,25 +82,58 @@ class GameActivity : AppCompatActivity() {
 
     private fun setupBtnClickListeners(){
         binding.btnReplay.setOnClickListener {
-            cupRotated.animate().apply {
-                duration = 2
-                rotation(180F)
-                start()
-            }
-            binding.ivBall.animate().apply {
-                duration = 2
-                x(ballStartCoordinate.x)
-                y(ballStartCoordinate.y)
-                setVisible(true)
-                start()
-            }
-            playGame()
+//            cupRotated.animate().apply {
+//                duration = 2
+//                rotation(180F)
+//                start()
+//            }
+//            ball.animate().apply {
+//                duration = 2
+//                x(listOfStartCoordinates[0].x)
+//                y(listOfStartCoordinates[0].y)
+//                setVisible(true)
+//                start()
+//            }
+//            playGame()
+            animationToStart()
         }
         binding.btnBackToStart.setOnClickListener {
             finish()
         }
         binding.ivBackBtn.setOnClickListener {
             finish()
+        }
+    }
+
+    private fun animationToStart(){
+        binding.btnReplay.setOnClickListener {
+            lifecycleScope.launch {
+                cupRotated.animate().apply {
+                    duration = 100
+                    rotation(180F)
+                }
+                ball.animate().apply {
+                    duration = 100
+                    x(listOfStartCoordinates[0].x)
+                    y(listOfStartCoordinates[0].y)
+                    setVisible(true)
+                }
+                cup1.animate().apply {
+                    duration = 100
+                    x(listOfStartCoordinates[1].x)
+                    y(listOfStartCoordinates[1].y)
+                }
+                cup2.animate().apply {
+                    duration = 100
+                    x(listOfStartCoordinates[2].x)
+                    y(listOfStartCoordinates[2].y)
+                }
+                cup3.animate().apply {
+                    duration = 100
+                    x(listOfStartCoordinates[3].x)
+                    y(listOfStartCoordinates[3].y)
+                }
+            }
         }
     }
 
@@ -143,6 +196,9 @@ class GameActivity : AppCompatActivity() {
 
     private fun playGame() {
         viewModel.setInGame()
+        if (listOfStartCoordinates.isEmpty()){
+            setupStartCoordinates()
+        }
         binding.ivBall.animate().apply {
             duration = 500
             val coordinates = getCupCoordinates()
@@ -163,7 +219,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun launchRotateAnimation() {
-        var amountRotation = (Random.nextInt(5) + 3) * 3
+        var amountRotation = (Random.nextInt(3) + 3) * 3
         lifecycleScope.launch {
             while (amountRotation > 0) {
                 rotateCup()
