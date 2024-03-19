@@ -23,7 +23,7 @@ class GameActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityGameBinding.inflate(layoutInflater) }
     private val prefs by lazy { getSharedPreferences("leader_prefs", Context.MODE_PRIVATE) }
-    private val isSoundOn by lazy { prefs.getBoolean("isSoundOn", false) }
+    private val isSoundOn by lazy { prefs.getBoolean("isSoundOn", true) }
     private var listOfStartCoordinates = mutableListOf<Coordinates>()
     private lateinit var cupRotated: View
     private var balance = 100

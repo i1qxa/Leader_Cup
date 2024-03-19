@@ -15,7 +15,7 @@ class StartGameActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityStartGameBinding.inflate(layoutInflater) }
     private val prefs by lazy { getSharedPreferences("leader_prefs", Context.MODE_PRIVATE) }
-    private var isSoundOn = false
+    private var isSoundOn = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
