@@ -15,6 +15,7 @@ class StartGameActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityStartGameBinding.inflate(layoutInflater) }
     private val prefs by lazy { getSharedPreferences("leader_prefs", Context.MODE_PRIVATE) }
+
     private var isSoundOn = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +31,12 @@ class StartGameActivity : AppCompatActivity() {
             startActivity(intent)
         }
         binding.ivInfoBtn.setOnClickListener {
-            val uri = Uri.parse("https://doc-hosting.flycricket.io/leader-cup-privacy-policy/d382f9ba-f8ba-4325-bbc6-dc81ba83089e/privacy")
+            val uri =
+                Uri.parse("https://doc-hosting.flycricket.io/leader-cup-privacy-policy/d382f9ba-f8ba-4325-bbc6-dc81ba83089e/privacy")
             val intent = Intent(Intent.ACTION_VIEW, uri)
-            startActivity(intent,)
+            startActivity(intent)
         }
-        isSoundOn = prefs.getBoolean("isSoundOn", false)
+        isSoundOn = prefs.getBoolean("isSoundOn", true)
         setupSoundIcon(isSoundOn)
         setMusicOnClickListener()
         setupBalance()
@@ -45,7 +47,7 @@ class StartGameActivity : AppCompatActivity() {
         setupBalance()
     }
 
-    private fun setMusicOnClickListener(){
+    private fun setMusicOnClickListener() {
         binding.ivMusicBtn.setOnClickListener {
             val newMusicState = !isSoundOn
             prefs.edit().putBoolean("isSoundOn", newMusicState).apply()
@@ -54,10 +56,10 @@ class StartGameActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupSoundIcon(isMusicOn:Boolean){
-        if (isMusicOn){
+    private fun setupSoundIcon(isMusicOn: Boolean) {
+        if (isMusicOn) {
             binding.ivMusicBtn.setImageResource(R.drawable.icon_music_off)
-        }else{
+        } else {
             binding.ivMusicBtn.setImageResource(R.drawable.icon_music_on)
         }
     }
